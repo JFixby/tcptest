@@ -1,4 +1,4 @@
-package main
+package server
 
 import (
 	"bufio"
@@ -15,9 +15,9 @@ import (
 
 var quotes []string
 
-const difficulty = 20 // bits of leading zero
+const difficulty = 5 // bits of leading zero
 
-func loadQuotes(filename string) error {
+func LoadQuotes(filename string) error {
 	file, err := os.Open(filename)
 	if err != nil {
 		return err
@@ -42,7 +42,7 @@ func verifyPoW(challenge, nonce string) bool {
 	return strings.HasPrefix(bits, strings.Repeat("0", difficulty))
 }
 
-func handleConnection(conn net.Conn) {
+func HandleConnection(conn net.Conn) {
 	defer conn.Close()
 	challenge := generateChallenge()
 	fmt.Fprintf(conn, "%s %d\n", challenge, difficulty)

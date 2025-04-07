@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/jfixby/tcptest/server/server"
 	"log"
 	"math/rand"
 	"net"
@@ -10,7 +11,7 @@ import (
 func main() {
 	rand.Seed(time.Now().UnixNano())
 
-	err := loadQuotes("wisdoms.json")
+	err := server.LoadQuotes("wisdoms.json")
 	if err != nil {
 		log.Fatalf("Failed to load quotes: %v", err)
 	}
@@ -27,6 +28,6 @@ func main() {
 			log.Println("Accept error:", err)
 			continue
 		}
-		go handleConnection(conn)
+		go server.HandleConnection(conn)
 	}
 }

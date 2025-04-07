@@ -1,4 +1,4 @@
-package main
+package client
 
 import (
 	"crypto/sha256"
@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func solvePoW(challenge string, difficulty int) string {
+func SolvePoW(challenge string, difficulty int) string {
 	prefix := strings.Repeat("0", difficulty)
 	for i := 0; ; i++ {
 		nonce := fmt.Sprintf("%d", i)
