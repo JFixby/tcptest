@@ -7,7 +7,7 @@ import (
 func main() {
 	s := server.NewServer()
 
-	err := s.Start(":1337", "/wisdoms.json")
+	err := s.Start(":1337", "wisdoms.json")
 	if err != nil {
 		panic(err)
 	}

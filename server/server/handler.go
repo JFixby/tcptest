@@ -63,10 +63,3 @@ func generateChallenge() string {
 	log.Printf("Generated challenge: %s", ch)
 	return ch
 }
-
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
-}
