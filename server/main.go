@@ -5,5 +5,10 @@ import (
 )
 
 func main() {
-	server.Start(":1337", "wisdoms.json")
+	s := server.NewServer()
+
+	err := s.Start(":1337", "/wisdoms.json")
+	if err != nil {
+		panic(err)
+	}
 }
