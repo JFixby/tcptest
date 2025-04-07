@@ -1,19 +1,31 @@
 package client
 
 import (
-	"crypto/sha256"
 	"fmt"
-	"strings"
+	"github.com/jfixby/tcptest/shared"
+	"log"
 )
 
 func SolvePoW(challenge string, difficulty int) string {
-	prefix := strings.Repeat("0", difficulty)
+	log.Printf("Starting PoW solver — challenge: %s, difficulty: %d", challenge, difficulty)
+
 	for i := 0; ; i++ {
 		nonce := fmt.Sprintf("%d", i)
-		hash := sha256.Sum256([]byte(challenge + nonce))
-		bits := fmt.Sprintf("%08b", hash)
-		if strings.HasPrefix(bits, prefix) {
+
+		if shared.CheckPoW(challenge, nonce, difficulty) {
+			hash := shared.Hash(challenge, nonce)
+			bits := shared.ToBitString(hash)
+
+			log.Printf("PoW solved! Nonce: %s", nonce)
+			log.Printf("Hash: %x", hash)
+			log.Printf("Bits: %s...", bits[:min(len(bits), difficulty+10)])
+
 			return nonce
+		}
+
+		if i%100 == 0 {
+			hash := shared.Hash(challenge, nonce)
+			log.Printf("Hash: %x", hash)
 		}
 	}
 }

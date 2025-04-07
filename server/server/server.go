@@ -2,29 +2,37 @@ package server
 
 import (
 	"bufio"
-	"crypto/sha256"
 	"encoding/json"
 	"fmt"
+	"github.com/jfixby/tcptest/shared"
 	"io"
 	"log"
 	"math/rand"
 	"net"
 	"os"
-	"strings"
 )
 
 var quotes []string
 
-const difficulty = 5 // bits of leading zero
+const difficulty = 16 // bits of leading zero
 
 func LoadQuotes(filename string) error {
+	log.Printf("Loading quotes from file: %s", filename)
+
 	file, err := os.Open(filename)
 	if err != nil {
 		return err
 	}
 	defer file.Close()
 
-	return json.NewDecoder(bufio.NewReader(file)).Decode(&quotes)
+	err = json.NewDecoder(bufio.NewReader(file)).Decode(&quotes)
+	if err != nil {
+		log.Printf("Failed to decode quotes: %v", err)
+	} else {
+		log.Printf("Loaded %d quotes", len(quotes))
+	}
+
+	return err
 }
 
 func generateChallenge() string {
@@ -33,31 +41,54 @@ func generateChallenge() string {
 	for i := range b {
 		b[i] = charset[rand.Intn(len(charset))]
 	}
-	return string(b)
+	ch := string(b)
+	log.Printf("Generated challenge: %s", ch)
+	return ch
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }
 
 func verifyPoW(challenge, nonce string) bool {
-	hash := sha256.Sum256([]byte(challenge + nonce))
-	bits := fmt.Sprintf("%08b", hash)
-	return strings.HasPrefix(bits, strings.Repeat("0", difficulty))
+	hash := shared.Hash(challenge, nonce)
+	bits := shared.ToBitString(hash)
+
+	log.Printf("Verifying PoW — Challenge: %s, Nonce: %s", challenge, nonce)
+	log.Printf("SHA256(%s) = %x", challenge+nonce, hash)
+	log.Printf("Bits: %s...", bits[:min(len(bits), difficulty+10)])
+
+	result := shared.CheckPoW(challenge, nonce, difficulty)
+	log.Printf("PoW valid: %t", result)
+	return result
 }
 
 func HandleConnection(conn net.Conn) {
 	defer conn.Close()
+	addr := conn.RemoteAddr().String()
+	log.Printf("New connection from %s", addr)
+
 	challenge := generateChallenge()
+	log.Printf("Sending challenge to %s: %s %d", addr, challenge, difficulty)
 	fmt.Fprintf(conn, "%s %d\n", challenge, difficulty)
 
 	var nonce string
 	_, err := fmt.Fscanf(conn, "%s\n", &nonce)
 	if err != nil {
-		log.Println("Error reading nonce:", err)
+		log.Printf("[%s] Error reading nonce: %v", addr, err)
 		return
 	}
+	log.Printf("[%s] Received nonce: %s", addr, nonce)
 
 	if verifyPoW(challenge, nonce) {
 		quote := quotes[rand.Intn(len(quotes))]
+		log.Printf("[%s] PoW valid — Sending quote: %s", addr, quote)
 		io.WriteString(conn, quote+"\n")
 	} else {
+		log.Printf("[%s] Invalid PoW — Rejecting connection", addr)
 		io.WriteString(conn, "Invalid proof of work.\n")
 	}
 }
