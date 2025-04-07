@@ -19,7 +19,7 @@ func SolvePoW(challenge string, difficulty int) string {
 			return nonce
 		}
 
-		if i%1000 == 0 {
+		if i%10000 == 0 {
 			log.Printf("Hash: %x", hash)
 		}
 	}

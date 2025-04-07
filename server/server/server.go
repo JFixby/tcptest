@@ -2,96 +2,76 @@ package server
 
 import (
 	"fmt"
-	"github.com/jfixby/tcptest/shared"
-	"io"
 	"log"
-	"math/rand"
 	"net"
-	"time"
+	"os"
+	"os/signal"
+	"sync"
+	"syscall"
 )
 
-func generateChallenge() string {
-	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-	b := make([]byte, 16)
-	for i := range b {
-		b[i] = charset[rand.Intn(len(charset))]
-	}
-	challenge := string(b)
-	log.Printf("Generated challenge: %s", challenge)
-	return challenge
+type Server struct {
+	listener net.Listener
+	wg       sync.WaitGroup
+	stop     chan struct{}
 }
 
-func min(a, b int) int {
-	if a < b {
-		return a
+func NewServer() *Server {
+	return &Server{
+		stop: make(chan struct{}),
 	}
-	return b
 }
 
-func verifyPoW(challenge, nonce string, difficulty int) bool {
-	log.Printf("Verifying PoW — Challenge: %s, Nonce: %s", challenge, nonce)
-	result, hash, bits := shared.CheckPoW(challenge, nonce, difficulty)
-	log.Printf("SHA256(%s) = %x", challenge+nonce, hash)
-	log.Printf("Bits: %s...", bits[:min(len(bits), difficulty+10)])
-	log.Printf("PoW valid: %t", result)
-	return result
-}
-
-func HandleConnection(conn net.Conn) {
-	defer conn.Close()
-	addr := conn.RemoteAddr().String()
-	log.Printf("New connection from %s", addr)
-
-	start := time.Now()
-
-	localDifficulty := GetDifficulty()
-
-	challenge := generateChallenge()
-	log.Printf("Sending challenge to %s: %s %d", addr, challenge, localDifficulty)
-	fmt.Fprintf(conn, "%s %d\n", challenge, localDifficulty)
-
-	var nonce string
-	_, err := fmt.Fscanf(conn, "%s\n", &nonce)
-	if err != nil {
-		log.Printf("[%s] Error reading nonce: %v", addr, err)
-		return
-	}
-	log.Printf("[%s] Received nonce: %s", addr, nonce)
-
-	duration := time.Since(start)
-
-	if verifyPoW(challenge, nonce, localDifficulty) {
-		quote := GetRandomQuote()
-		log.Printf("[%s] PoW valid — Sending quote: %s", addr, quote)
-		io.WriteString(conn, quote+"\n")
-	} else {
-		log.Printf("[%s] Invalid PoW — Rejecting connection", addr)
-		io.WriteString(conn, "Invalid proof of work.\n")
+func (s *Server) Start(address, wisdoms string) error {
+	// Load quotes
+	if err := LoadQuotes(wisdoms); err != nil {
+		return fmt.Errorf("failed to load quotes: %w", err)
 	}
 
-	AdjustDifficulty(duration)
-}
-
-func Start(address, wisdoms string) {
-	rand.Seed(time.Now().UnixNano())
-
-	err := LoadQuotes(wisdoms)
-	if err != nil {
-		log.Fatalf("Failed to load quotes: %v", err)
-	}
-
+	// Open TCP port
 	ln, err := net.Listen("tcp", address)
 	if err != nil {
-		log.Fatal(err)
+		return fmt.Errorf("failed to listen: %w", err)
 	}
-	log.Println("Server listening on port 1337")
+	s.listener = ln
+	log.Printf("Server listening on %s", address)
+
+	// Handle Ctrl+C / SIGTERM
+	go s.handleSignals()
 
 	for {
 		conn, err := ln.Accept()
 		if err != nil {
-			log.Println("Accept error:", err)
-			continue
+			select {
+			case <-s.stop:
+				log.Println("Server is shutting down.")
+				return nil
+			default:
+				log.Printf("Accept error: %v", err)
+				continue
+			}
 		}
-		go HandleConnection(conn)
+		s.wg.Add(1)
+		go func() {
+			defer s.wg.Done()
+			handleConnection(conn)
+		}()
 	}
+}
+
+func (s *Server) handleSignals() {
+	sigCh := make(chan os.Signal, 1)
+	signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
+	<-sigCh
+	s.Stop()
+}
+
+func (s *Server) Stop() {
+	log.Println("Stopping server...")
+	close(s.stop)
+	if s.listener != nil {
+		s.listener.Close()
+	}
+	s.wg.Wait()
+	log.Println("Server shutdown complete.")
 }
