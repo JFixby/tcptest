@@ -29,14 +29,10 @@ func min(a, b int) int {
 }
 
 func verifyPoW(challenge, nonce string, difficulty int) bool {
-	hash := shared.Hash(challenge, nonce)
-	bits := shared.ToBitString(hash)
-
 	log.Printf("Verifying PoW — Challenge: %s, Nonce: %s", challenge, nonce)
+	result, hash, bits := shared.CheckPoW(challenge, nonce, difficulty)
 	log.Printf("SHA256(%s) = %x", challenge+nonce, hash)
 	log.Printf("Bits: %s...", bits[:min(len(bits), difficulty+10)])
-
-	result := shared.CheckPoW(challenge, nonce, difficulty)
 	log.Printf("PoW valid: %t", result)
 	return result
 }

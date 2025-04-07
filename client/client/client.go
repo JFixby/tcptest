@@ -11,20 +11,15 @@ func SolvePoW(challenge string, difficulty int) string {
 
 	for i := 0; ; i++ {
 		nonce := fmt.Sprintf("%d", i)
-
-		if shared.CheckPoW(challenge, nonce, difficulty) {
-			hash := shared.Hash(challenge, nonce)
-			bits := shared.ToBitString(hash)
-
+		valid, hash, bits := shared.CheckPoW(challenge, nonce, difficulty)
+		if valid {
 			log.Printf("PoW solved! Nonce: %s", nonce)
 			log.Printf("Hash: %x", hash)
 			log.Printf("Bits: %s...", bits[:min(len(bits), difficulty+10)])
-
 			return nonce
 		}
 
 		if i%1000 == 0 {
-			hash := shared.Hash(challenge, nonce)
 			log.Printf("Hash: %x", hash)
 		}
 	}

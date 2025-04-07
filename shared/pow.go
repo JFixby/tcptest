@@ -21,10 +21,10 @@ func FormatByteToBits(b byte) string {
 
 // CheckPoW verifies that the hash of (challenge + nonce)
 // starts with the required number of leading zero bits.
-func CheckPoW(challenge, nonce string, difficulty int) bool {
+func CheckPoW(challenge, nonce string, difficulty int) (bool, [32]byte, string) {
 	hash := Hash(challenge, nonce)
 	bits := ToBitString(hash)
-	return strings.HasPrefix(bits, strings.Repeat("0", difficulty))
+	return strings.HasPrefix(bits, strings.Repeat("0", difficulty)), hash, bits
 }
 
 func Hash(challenge, nonce string) [32]byte {
