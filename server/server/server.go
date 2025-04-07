@@ -7,9 +7,8 @@ import (
 	"log"
 	"math/rand"
 	"net"
+	"time"
 )
-
-const difficulty = 15 // bits of leading zero
 
 func generateChallenge() string {
 	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
@@ -17,9 +16,9 @@ func generateChallenge() string {
 	for i := range b {
 		b[i] = charset[rand.Intn(len(charset))]
 	}
-	ch := string(b)
-	log.Printf("Generated challenge: %s", ch)
-	return ch
+	challenge := string(b)
+	log.Printf("Generated challenge: %s", challenge)
+	return challenge
 }
 
 func min(a, b int) int {
@@ -29,7 +28,7 @@ func min(a, b int) int {
 	return b
 }
 
-func verifyPoW(challenge, nonce string) bool {
+func verifyPoW(challenge, nonce string, difficulty int) bool {
 	hash := shared.Hash(challenge, nonce)
 	bits := shared.ToBitString(hash)
 
@@ -47,9 +46,13 @@ func HandleConnection(conn net.Conn) {
 	addr := conn.RemoteAddr().String()
 	log.Printf("New connection from %s", addr)
 
+	start := time.Now()
+
+	localDifficulty := GetDifficulty()
+
 	challenge := generateChallenge()
-	log.Printf("Sending challenge to %s: %s %d", addr, challenge, difficulty)
-	fmt.Fprintf(conn, "%s %d\n", challenge, difficulty)
+	log.Printf("Sending challenge to %s: %s %d", addr, challenge, localDifficulty)
+	fmt.Fprintf(conn, "%s %d\n", challenge, localDifficulty)
 
 	var nonce string
 	_, err := fmt.Fscanf(conn, "%s\n", &nonce)
@@ -59,7 +62,9 @@ func HandleConnection(conn net.Conn) {
 	}
 	log.Printf("[%s] Received nonce: %s", addr, nonce)
 
-	if verifyPoW(challenge, nonce) {
+	duration := time.Since(start)
+
+	if verifyPoW(challenge, nonce, localDifficulty) {
 		quote := GetRandomQuote()
 		log.Printf("[%s] PoW valid — Sending quote: %s", addr, quote)
 		io.WriteString(conn, quote+"\n")
@@ -67,4 +72,6 @@ func HandleConnection(conn net.Conn) {
 		log.Printf("[%s] Invalid PoW — Rejecting connection", addr)
 		io.WriteString(conn, "Invalid proof of work.\n")
 	}
+
+	AdjustDifficulty(duration)
 }
