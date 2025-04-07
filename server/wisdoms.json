@@ -1,7 +1,70 @@
 [
-  "Know thyself.",
-  "The unexamined life is not worth living.",
-  "To be is to do.",
-  "I think, therefore I am.",
-  "The only true wisdom is in knowing you know nothing."
+  {
+    "unit": "Zealot",
+    "quote": "My life for Aiur!"
+  },
+  {
+    "unit": "Zealot",
+    "quote": "En Taro Adun!"
+  },
+  {
+    "unit": "Dragoon",
+    "quote": "I have returned."
+  },
+  {
+    "unit": "High Templar",
+    "quote": "The merging is complete."
+  },
+  {
+    "unit": "Archon",
+    "quote": "Power overwhelming!"
+  },
+  {
+    "unit": "Dark Templar",
+    "quote": "I am the blade of Shakuras."
+  },
+  {
+    "unit": "Dark Archon",
+    "quote": "Your will is not your own."
+  },
+  {
+    "unit": "Dark Archon",
+    "quote": "The end draws near."
+  },
+  {
+    "unit": "Corsair",
+    "quote": "It is a good day to die!"
+  },
+  {
+    "unit": "Probe",
+    "quote": "You must construct additional Pylons."
+  },
+  {
+    "unit": "Probe",
+    "quote": "You must place that in a power field."
+  },
+  {
+    "unit": "Observer",
+    "quote": "I see all."
+  },
+  {
+    "unit": "Carrier",
+    "quote": "We are poised for victory."
+  },
+  {
+    "unit": "Arbiter",
+    "quote": "Time is short."
+  },
+  {
+    "unit": "Templar",
+    "quote": "Justice be done!"
+  },
+  {
+    "unit": "Dark Templar",
+    "quote": "The darkness is eternal."
+  },
+  {
+    "unit": "Dark Templar",
+    "quote": "Fear is an illusion."
+  }
 ]

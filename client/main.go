@@ -7,9 +7,18 @@ import (
 	"log"
 	"net"
 	"strings"
+	"time"
 )
 
 func main() {
+	for i := 0; i < 10; i++ {
+		exchange()
+	}
+}
+
+func exchange() {
+	start := time.Now()
+
 	log.Println("Connecting to server at localhost:1337...")
 	conn, err := net.Dial("tcp", "localhost:1337")
 	if err != nil {
@@ -53,4 +62,9 @@ func main() {
 	}
 	log.Printf("Server reply: %s", strings.TrimSpace(reply))
 	fmt.Println("Server says:", strings.TrimSpace(reply))
+
+	// Print duration
+	elapsed := time.Since(start)
+	log.Printf("Exchange completed in %s", elapsed)
+	fmt.Println()
 }

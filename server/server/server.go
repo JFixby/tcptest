@@ -1,39 +1,15 @@
 package server
 
 import (
-	"bufio"
-	"encoding/json"
 	"fmt"
 	"github.com/jfixby/tcptest/shared"
 	"io"
 	"log"
 	"math/rand"
 	"net"
-	"os"
 )
 
-var quotes []string
-
-const difficulty = 16 // bits of leading zero
-
-func LoadQuotes(filename string) error {
-	log.Printf("Loading quotes from file: %s", filename)
-
-	file, err := os.Open(filename)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	err = json.NewDecoder(bufio.NewReader(file)).Decode(&quotes)
-	if err != nil {
-		log.Printf("Failed to decode quotes: %v", err)
-	} else {
-		log.Printf("Loaded %d quotes", len(quotes))
-	}
-
-	return err
-}
+const difficulty = 15 // bits of leading zero
 
 func generateChallenge() string {
 	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
@@ -84,7 +60,7 @@ func HandleConnection(conn net.Conn) {
 	log.Printf("[%s] Received nonce: %s", addr, nonce)
 
 	if verifyPoW(challenge, nonce) {
-		quote := quotes[rand.Intn(len(quotes))]
+		quote := GetRandomQuote()
 		log.Printf("[%s] PoW valid — Sending quote: %s", addr, quote)
 		io.WriteString(conn, quote+"\n")
 	} else {
