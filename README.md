@@ -42,7 +42,7 @@ tcptest/
 ### 🧠 Run the Server
 
 ```bash
-go run server/main.go
+go run server/main.go 127.0.0.1:1337 server/wisdoms.json
 ```
 
 > Listens on TCP port `:1337`  
