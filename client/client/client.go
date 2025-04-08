@@ -1,9 +1,12 @@
 package client
 
 import (
+	"bufio"
 	"fmt"
 	"github.com/jfixby/tcptest/shared"
 	"log"
+	"net"
+	"strings"
 )
 
 func SolvePoW(challenge string, difficulty int) string {
@@ -23,4 +26,57 @@ func SolvePoW(challenge string, difficulty int) string {
 			log.Printf("Hash: %x", hash)
 		}
 	}
+}
+
+func ConnectToServer(address string) net.Conn {
+	log.Printf("Connecting to server at %s...", address)
+	conn, err := net.Dial("tcp", address)
+	if err != nil {
+		log.Fatalf("Failed to connect: %v", err)
+	}
+	log.Println("Connected.")
+	return conn
+}
+
+func ReadChallenge(reader *bufio.Reader) (string, int) {
+	line, err := reader.ReadString('\n')
+	if err != nil {
+		log.Fatalf("Failed to read challenge from server: %v", err)
+	}
+	log.Printf("Received challenge line: %s", strings.TrimSpace(line))
+
+	parts := strings.Fields(line)
+	if len(parts) != 2 {
+		log.Fatalf("Invalid challenge format: %v", parts)
+	}
+
+	challenge := parts[0]
+	var difficulty int
+	fmt.Sscanf(parts[1], "%d", &difficulty)
+
+	log.Printf("Parsed challenge: %s", challenge)
+	log.Printf("Parsed difficulty: %d", difficulty)
+
+	return challenge, difficulty
+}
+
+func SolveChallenge(challenge string, difficulty int) string {
+	log.Println("Solving PoW challenge...")
+	nonce := SolvePoW(challenge, difficulty)
+	log.Printf("Solved PoW! Nonce: %s", nonce)
+	return nonce
+}
+
+func SendNonce(conn net.Conn, nonce string) {
+	fmt.Fprintf(conn, "%s\n", nonce)
+	log.Println("Nonce sent to server.")
+}
+
+func ReadReply(reader *bufio.Reader) {
+	reply, err := reader.ReadString('\n')
+	if err != nil {
+		log.Fatalf("Failed to read reply from server: %v", err)
+	}
+	log.Printf("Server reply: %s", strings.TrimSpace(reply))
+	fmt.Println("Server says:", strings.TrimSpace(reply))
 }
