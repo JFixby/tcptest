@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"github.com/jfixby/tcptest/client/client"
 	"log"
@@ -9,8 +10,14 @@ import (
 )
 
 func main() {
-	for i := 0; i < 4; i++ {
-		Exchange("localhost:1337")
+	// CLI флаги
+	address := flag.String("address", "localhost:1337", "Адрес TCP-сервера (host:port)")
+	count := flag.Int("count", 4, "Сколько раз выполнить обмен с сервером")
+	flag.Parse()
+
+	// Повторяем обмен указанное количество раз
+	for i := 0; i < *count; i++ {
+		Exchange(*address)
 	}
 }
 
