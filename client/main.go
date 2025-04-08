@@ -10,14 +10,14 @@ import (
 
 func main() {
 	for i := 0; i < 10; i++ {
-		exchange()
+		Exchange("localhost:1337")
 	}
 }
 
-func exchange() {
+func Exchange(address string) {
 	start := time.Now()
 
-	conn := client.ConnectToServer("localhost:1337")
+	conn := client.ConnectToServer(address)
 	defer conn.Close()
 
 	reader := bufio.NewReader(conn)
