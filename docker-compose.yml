@@ -19,4 +19,4 @@ services:
     working_dir: /app
     depends_on:
       - server
-    command: ["-address=server:1337", "-count=5"]
+    command: ["-address=server:1337", "-count=4"]
