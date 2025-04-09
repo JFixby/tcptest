@@ -9,6 +9,8 @@ RUN go mod download
 
 COPY . .
 
+# ВАЖНО: отключаем CGO, чтобы собрать статически
+ENV CGO_ENABLED=0
 RUN go build -o wisdom_server main.go
 
 # ===== Этап 2: Финальный образ =====
