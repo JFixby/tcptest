@@ -1,18 +1,28 @@
-# Используем минимальный официальный образ Go
-FROM golang:1.21-alpine
+# Этап сборки
+FROM golang:1.20 AS builder
 
-# Устанавливаем рабочую директорию
 WORKDIR /app
 
-# Копируем go.mod и go.sum и загружаем зависимости
+# Копируем go.mod и go.sum для установки зависимостей
 COPY go.mod go.sum ./
 RUN go mod download
 
-# Копируем весь проект
+# Копируем исходники
 COPY . .
 
-# Собираем бинарник
-RUN go build -o client-app ./main.go
+# Собираем приложение
+RUN go build -o client-app ./cmd/client
 
-# Аргументы командной строки по умолчанию
+# Финальный минимальный образ (можно использовать scratch или alpine)
+FROM alpine:latest
+
+# Устанавливаем ca-certificates (если нужно TLS)
+RUN apk --no-cache add ca-certificates
+
+WORKDIR /root/
+
+# Копируем скомпилированное приложение из билдера
+COPY --from=builder /app/client-app .
+
+# Указываем точку входа
 ENTRYPOINT ["./client-app"]
