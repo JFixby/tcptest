@@ -3,7 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"github.com/jfixby/tcptest/client/client"
+	"github.com/jfixby/tcptest/client"
 	"github.com/jfixby/tcptest/server/server"
 	"net"
 	"strings"
@@ -71,7 +71,7 @@ func exchangeOnce(t *testing.T, address string) {
 
 	// Step 2: Solve proof of work
 	t.Log("⚙️  Solving PoW...")
-	nonce := client.SolvePoW(challenge, difficulty)
+	nonce := main.SolvePoW(challenge, difficulty)
 	t.Logf("✅ PoW solved — Nonce: %s", nonce)
 
 	// Step 3: Send nonce to server

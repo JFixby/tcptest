@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"github.com/jfixby/tcptest/client/client"
 )
 
 func main() {
@@ -13,6 +12,6 @@ func main() {
 
 	// Повторяем обмен указанное количество раз
 	for i := 0; i < *count; i++ {
-		client.Exchange(*address)
+		Exchange(*address)
 	}
 }
