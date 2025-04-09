@@ -27,7 +27,7 @@ func AdjustDifficulty(duration time.Duration) {
 	case duration > 2*time.Second && difficulty > 1:
 		difficulty--
 		log.Printf("💡 Exchange took %s — lowering difficulty to %d", duration, difficulty)
-	case duration < 2*time.Second && difficulty < 30:
+	case duration < 2*time.Second && difficulty < 16:
 		difficulty++
 		log.Printf("⚡ Exchange took %s — increasing difficulty to %d", duration, difficulty)
 	default:

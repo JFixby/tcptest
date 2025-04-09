@@ -10,7 +10,6 @@ services:
     ports:
       - "1337:1337"
     command: ["-address=:1337", "-wisdoms=wisdoms.json"]
-    restart: unless-stopped
 
   client:
     build:
@@ -21,4 +20,3 @@ services:
     depends_on:
       - server
     command: ["-address=server:1337", "-count=5"]
-    restart: unless-stopped
