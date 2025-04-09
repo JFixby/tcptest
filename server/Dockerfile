@@ -1,32 +1,34 @@
-# Этап сборки
+# ===== Этап 1: Сборка =====
 FROM golang:1.20 AS builder
+
+# Рабочая директория
+WORKDIR /app
+
+# Копируем go.mod и go.sum — устанавливаем зависимости
+COPY go.mod ./
+COPY go.sum ./
+RUN go mod download
+
+# Копируем всё, включая исходники и wisdoms.json
+COPY . .
+
+# Форматируем, чистим, собираем
+RUN go fmt ./... && go mod tidy && go build -o /build/wisdom_server main.go
+
+# ===== Этап 2: Финальный образ =====
+FROM alpine:latest
+
+# Добавим ca-certificates на случай TLS
+RUN apk --no-cache add ca-certificates
 
 WORKDIR /app
 
-# Копируем зависимости
-COPY go.mod go.sum ./
-RUN go mod download
+# Копируем бинарник и JSON-файл с мудростями
+COPY --from=builder /build/wisdom_server .
+COPY wisdoms.json .
 
-# Копируем исходный код
-COPY . .
-
-# Сборка сервера
-RUN go build -o server-app ./cmd/server
-
-# Финальный образ
-FROM alpine:latest
-
-# Добавим сертификаты (если планируется TLS)
-RUN apk --no-cache add ca-certificates
-
-WORKDIR /root/
-
-# Копируем скомпилированное приложение
-COPY --from=builder /app/server-app .
-COPY server/wisdoms.json ./wisdoms.json
-
-# Открываем порт (по желанию, для docker-compose)
+# Открываем порт (если нужно)
 EXPOSE 1337
 
-# Запуск с флагами
-ENTRYPOINT ["./server-app"]
+# Запуск
+ENTRYPOINT ["./wisdom_server"]

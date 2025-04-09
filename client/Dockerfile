@@ -1,28 +1,30 @@
-# Этап сборки
+# ===== Этап 1: Сборка приложения =====
 FROM golang:1.20 AS builder
+
+# Устанавливаем рабочую директорию
+WORKDIR /app
+
+# Копируем go.mod и go.sum и устанавливаем зависимости
+COPY go.mod ./
+COPY go.sum ./
+RUN go mod download
+
+# Копируем остальной исходный код клиента и зависимые модули
+COPY . .
+
+# Сборка бинарника
+RUN go build -o /build/wisdom_client main.go
+
+# ===== Этап 2: Финальный образ =====
+FROM alpine:latest
+
+# Установка сертификатов (на случай TLS)
+RUN apk --no-cache add ca-certificates
 
 WORKDIR /app
 
-# Копируем go.mod и go.sum для установки зависимостей
-COPY go.mod go.sum ./
-RUN go mod download
+# Копируем собранный бинарник из первого этапа
+COPY --from=builder /build/wisdom_client .
 
-# Копируем исходники
-COPY . .
-
-# Собираем приложение
-RUN go build -o client-app ./cmd/client
-
-# Финальный минимальный образ (можно использовать scratch или alpine)
-FROM alpine:latest
-
-# Устанавливаем ca-certificates (если нужно TLS)
-RUN apk --no-cache add ca-certificates
-
-WORKDIR /root/
-
-# Копируем скомпилированное приложение из билдера
-COPY --from=builder /app/client-app .
-
-# Указываем точку входа
-ENTRYPOINT ["./client-app"]
+# Точка входа — запуск клиента
+ENTRYPOINT ["./wisdom_client"]
