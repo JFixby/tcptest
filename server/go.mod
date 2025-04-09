@@ -2,4 +2,4 @@ module github.com/jfixby/tcptest/server
 
 go 1.21
 
-require github.com/jfixby/tcptest/shared v0.2.0
+require github.com/jfixby/tcptest/shared v0.2.1
