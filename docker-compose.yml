@@ -1,0 +1,22 @@
+version: "3.9"
+
+services:
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: wisdom-server
+    ports:
+      - "1337:1337"
+    command: ["-address=:1337", "-wisdoms=wisdoms.json"]
+    working_dir: /app
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: wisdom-client
+    depends_on:
+      - server
+    command: ["-address=server:1337", "-count=3"]
+    working_dir: /app
