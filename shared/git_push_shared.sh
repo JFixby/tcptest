@@ -2,7 +2,7 @@
 
 set -e
 
-VERSION="v0.1.0"
+VERSION="v0.1.1"
 MODULE="shared"
 
 echo "📦 Релиз модуля $MODULE с версией $VERSION"
