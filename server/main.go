@@ -1,24 +1,22 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"github.com/jfixby/tcptest/server/server"
 	"os"
 )
 
 func main() {
-	// Проверяем наличие аргументов: адрес и путь к файлу с мудростями
-	if len(os.Args) != 3 {
-		fmt.Println("Usage: go run main.go <address> <wisdoms_file>")
-		os.Exit(1)
-	}
+	// Флаги командной строки
+	address := flag.String("address", ":1337", "Адрес TCP-сервера (например, :1337)")
+	wisdoms := flag.String("wisdoms", "server/wisdoms.json", "Путь к файлу с мудростями (JSON)")
+	flag.Parse()
 
-	address := os.Args[1]     // Пример: ":1337"
-	wisdomsFile := os.Args[2] // Пример: "server/wisdoms.json"
-
+	// Запуск сервера
 	s := server.NewServer()
-	if err := s.Start(address, wisdomsFile); err != nil {
-		fmt.Printf("Error: %v\n", err)
+	if err := s.Start(*address, *wisdoms); err != nil {
+		fmt.Printf("Ошибка запуска сервера: %v\n", err)
 		os.Exit(1)
 	}
 }

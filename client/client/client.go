@@ -7,6 +7,7 @@ import (
 	"log"
 	"net"
 	"strings"
+	"time"
 )
 
 func SolvePoW(challenge string, difficulty int) string {
@@ -79,4 +80,22 @@ func ReadReply(reader *bufio.Reader) {
 	}
 	log.Printf("Server reply: %s", strings.TrimSpace(reply))
 	fmt.Println("Server says:", strings.TrimSpace(reply))
+}
+
+func Exchange(address string) {
+	start := time.Now()
+
+	conn := ConnectToServer(address)
+	defer conn.Close()
+
+	reader := bufio.NewReader(conn)
+
+	challenge, difficulty := ReadChallenge(reader)
+	nonce := SolveChallenge(challenge, difficulty)
+	SendNonce(conn, nonce)
+	ReadReply(reader)
+
+	elapsed := time.Since(start)
+	log.Printf("Exchange completed in %s\n", elapsed)
+	fmt.Println()
 }
