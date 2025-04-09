@@ -1,5 +1,5 @@
 # ===== Этап 1: Сборка =====
-FROM golang:1.20 AS builder
+FROM golang:1.21 AS builder
 
 # Рабочая директория
 WORKDIR /app
@@ -12,8 +12,8 @@ RUN go mod download
 # Копируем всё, включая исходники и wisdoms.json
 COPY . .
 
-# Форматируем, чистим, собираем
-RUN go fmt ./... && go mod tidy && go build -o /build/wisdom_server main.go
+# cобираем
+RUN go build -o /build/wisdom_server main.go
 
 # ===== Этап 2: Финальный образ =====
 FROM alpine:latest
