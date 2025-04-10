@@ -1,4 +1,4 @@
-github.com/jfixby/tcptest/server/server v0.0.0-20250409234041-c3129433263b h1:yuKVtGTvjrpQ3F1WZP4g2Epq47j7TA9meSTJdkq+RFc=
-github.com/jfixby/tcptest/server/server v0.0.0-20250409234041-c3129433263b/go.mod h1:W/Xn3NK1FoIeprj76abiJtMnifVFrIcEDAN0tstQkMY=
+github.com/jfixby/tcptest/server/server v0.0.1 h1:Bg6SqP6uyMUsEubkOEQS25hG1pUkxQBh+XKOrqPsFVw=
+github.com/jfixby/tcptest/server/server v0.0.1/go.mod h1:W/Xn3NK1FoIeprj76abiJtMnifVFrIcEDAN0tstQkMY=
 github.com/jfixby/tcptest/shared v0.2.2 h1:WoG8oSvqXVXwX0laOPfdaXGYBuMIODH1SOYLXWbqA8s=
 github.com/jfixby/tcptest/shared v0.2.2/go.mod h1:qc55SxvKQ5pNJMRDlxab0IGW1clg+EXKTTjatBQnJaA=
