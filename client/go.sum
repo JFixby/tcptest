@@ -1,2 +1,4 @@
+github.com/jfixby/tcptest/client/client v0.0.1 h1:Sm6m2l9G9MMVOtGQxTE9eOwxr2ivE80NqBkukRYsXT8=
+github.com/jfixby/tcptest/client/client v0.0.1/go.mod h1:C3aIfZiM4gn9BTrsksEfHVkDxKZXODuWzo8Z9GwRJgI=
 github.com/jfixby/tcptest/shared v0.2.2 h1:WoG8oSvqXVXwX0laOPfdaXGYBuMIODH1SOYLXWbqA8s=
 github.com/jfixby/tcptest/shared v0.2.2/go.mod h1:qc55SxvKQ5pNJMRDlxab0IGW1clg+EXKTTjatBQnJaA=
